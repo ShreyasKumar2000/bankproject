@@ -1,0 +1,137 @@
+<!--<form method="post" action="{% url 'customer_form' %}">-->
+<!--    {% csrf_token %}-->
+<!--    {{ form.as_p }}-->
+
+<!--    {{ district_branch_form.district }}-->
+<!--    {{ district_branch_form.branch }}-->
+
+<!--    <button type="submit">Submit & Logout</button>-->
+<!--</form>-->
+
+<!--<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>-->
+<!--<script>-->
+<!--  $(document).ready(function(){-->
+<!--    $('#id_district').change(function(){-->
+<!--      var districtId = $(this).val();-->
+<!--      $.ajax({-->
+<!--        url: '/load-branches/',-->
+<!--        data: {'district': districtId},-->
+<!--        success: function(data){-->
+<!--          $('#id_branch').html(data);-->
+<!--        }-->
+<!--      });-->
+<!--    });-->
+<!--  });-->
+<!--</script>-->
+<form method="post" action="{% url 'customer_form' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <form method="get" action="{% url 'customer_form' %}" id="districtForm">
+
+    <b><label for="id_district">District:</label></b>
+
+    <select name="district" id="id_district" onchange="submitForm()" style="width:75% ;border-radius: 5px;padding: 10px; border: 1px solid #ccc;">
+
+        <option value="1" selected>Alappuzha</option>
+        <option value="2">Ernakulam</option>
+
+
+    </select>
+
+            <br>
+
+        <b><label for="id_branch">Branch:</label></b>
+        <select name="branch" id="id_branch" required style="width:75%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            <option value="" selected>Select Branch</option>
+            {% if id_district == 1 %}
+                <option value="1" >Haripad</option>
+            {% else %}
+                <option value="1">Vyttila</option>
+
+
+
+            {% endif %}
+        </select>
+</form>
+
+    <button type="submit">Submit & Logout</button>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    function submitForm(formId) {
+        // Use AJAX to submit the specified form without a page refresh
+        $.ajax({
+            type: $("#" + formId).attr("method"),
+            url: $("#" + formId).attr("action"),
+            data: $("#" + formId).serialize(),
+            success: function (data) {
+                // Update the content of the corresponding form div with the response from the server
+                $("#" + formId).html(data);
+            }
+        });
+    }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Preserve the selected branch when the page loads
+        var selectedBranch = "{{ selected_branch.id }}" || "";
+        document.getElementById('id_branch').value = selectedBranch;
+
+        // Handle district selection change
+        document.getElementById('id_district').addEventListener('change', function() {
+            var selectedDistrictId = this.value;
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', "{% url 'load_branches' %}?district_id=" + selectedDistrictId, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var branchesData = JSON.parse(xhr.responseText);
+                    updateBranchesDropdown(branchesData);
+                }
+            };
+            xhr.send();
+        });
+
+        function updateBranchesDropdown(branchesData) {
+            var branchesDropdown = document.getElementById('id_branch');
+            branchesDropdown.innerHTML = '';
+
+            for (var i = 0; i < branchesData.length; i++) {
+                var option = document.createElement('option');
+                option.value = branchesData[i].id;
+                option.text = branchesData[i].name;
+                branchesDropdown.appendChild(option);
+            }
+        }
+    });
+</script>
+
+<!--<script>-->
+<!--    $(document).ready(function(){-->
+<!--    $('#id_district').change(function(){-->
+<!--        var districtId = $(this).val();-->
+<!--        $.ajax({-->
+<!--            url: '/accounts/load-branches/',-->
+<!--            data: {'district_id': districtId},-->
+<!--            success: function(data){-->
+<!--                // Clear and disable the branch field if no data is received-->
+<!--                if (data.length === 0) {-->
+<!--                    $('#id_branch').html('<option value="" selected>Select Branch</option>');-->
+<!--                    $('#id_branch').prop('disabled', true);-->
+<!--                } else {-->
+<!--                    // Update the branch field with the received data-->
+<!--                    $('#id_branch').html(data);-->
+<!--                    $('#id_branch').prop('disabled', false);-->
+<!--                }-->
+<!--            },-->
+<!--            error: function(){-->
+<!--                // Handle any errors if necessary-->
+<!--                console.error('Error loading branches');-->
+<!--            }-->
+<!--        });-->
+<!--    });-->
+<!--});-->
+<!--</script>-->

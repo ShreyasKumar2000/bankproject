@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block title %}
+Home
+{% endblock %}
+
+
+{% block content %}
+<div class="card col-md-4 mx-auto">
+    <div class="card-header" style="background-color: #FF0000;">
+        <h2>Form Page</h2>
+    </div>
+<div class="card-body">
+<form action="lastpage" method="post" id="personForm" >
+    {% csrf_token %}
+    {% if form.errors %}
+    <div class="alert alert-danger">
+      <strong>Error(s):</strong>
+      <ul>
+        {% for error_list in form.errors.values %}
+          {% for error in error_list %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+    <div class="form-group">
+        <b><label>Name:</label></b><br>
+        <input type="text" name="name" placeholder="Enter Name" required class="form-control"></div><br>
+        <div class="form-group">
+            <b><label>Date of Birth:</label></b><br>
+    <input type="date" name="date_of_birth" placeholder="Enter D-O-B" required class="form-control"></div><br>
+            <div class="form-group">
+                <b><label>Age:</label></b><br>
+                <input type="number" name="age" placeholder="Enter Age" required class="form-control"></div><br>
+                <div class="form-group">
+                <b><label for="gender">Gender:</label></b>
+                <select id="gender" name="gender" required class="form-control">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+                    <div class="form-group">
+                        <b><label>Phone Number:</label></b><br>
+                        <input type="number" name="phone_number" placeholder="Enter Phone Number" required class="form-control"></div><br>
+                        <div class="form-group">
+                            <b><label>E-mail:</label></b><br>
+                            <input type="email" name="email" placeholder="Enter Email id" required class="form-control"></div><br>
+                            <div class="form-group">
+                                <b><label>Address:</label></b><br>
+                                <input type="text" name="address" placeholder="Enter Address" required class="form-control"></div><br>
+
+<div class="form-group">
+
+        <label for="id_district"><b>District:</b></label>
+        <select name="district" id="id_district" required class="form-control">
+            <option value="">-- Select a District --</option>
+            <option value="Alappuzha">Alappuzha</option>
+            <option value="Ernakulam">Ernakulam</option>
+            <option value="Kollam">Kollam</option>
+            <option value="Kozhikode">Kozhikode</option>
+            <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+        </select></div><br>
+<div class="form-group">
+        <label for="id_city"><b>Branch:</b></label>
+        <select name="city" id="id_city" required class="form-control">
+            <option value="">-- Select Branch --</option>
+        </select><br>
+
+       <div class="form-group">
+        <b><label for="account_type">Account Type:</label></b>
+        <select name="account_type" id="account_type" required class="form-control" >
+            <option value="" selected>Select Account Type</option>
+            <option value="savings">Savings Account</option>
+            <option value="current">Current Account</option>
+
+        </select>
+    </div><br>
+
+
+        <div class="form-group">
+        <b><label>Materials Provide:</label></b><br>
+        <div class="form-group form-control">
+        <div class="container" style="text-align:justify">
+        <label for="id_debit_card">
+            <input type="checkbox" name="materials_provide" id="id_debit_card" value="debit_card">
+            Debit Card
+        </label><br>
+        <label for="id_credit_card">
+            <input type="checkbox" name="materials_provide" id="id_credit_card" value="credit_card">
+            Credit Card
+        </label><br>
+        <label for="id_cheque_book">
+            <input type="checkbox" name="materials_provide" id="id_cheque_book" value="cheque_book">
+            Cheque Book
+        </label><br>
+        </div>
+            </div>
+
+    </div><br>
+    <div style="text-align:center">
+        <button type="submit" class="btn btn-primary">Submit</button></div>
+<!--    {% if form.errors %}-->
+<!--  <div class="alert alert-danger">-->
+<!--    <strong>Error!</strong> Please correct the following errors.-->
+<!--    <ul>-->
+<!--      {% for field in form %}-->
+<!--        {% if field.errors %}-->
+<!--          <li>{{ field.label }}: {{ field.errors|striptags }}</li>-->
+<!--        {% endif %}-->
+<!--      {% endfor %}-->
+<!--    </ul>-->
+<!--  </div>-->
+    <!--{% endif %}--></div>
+    </form>
+</div>
+</div>
+
+{% if form.errors %}
+  <div class="alert alert-danger">
+    <strong>Error!</strong> Please correct the following errors.
+    <ul>
+      {% for field in form %}
+        {% if field.errors %}
+          <li>{{ field.label }}: {{ field.errors|striptags }}</li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+    <li><a href="{% url 'logout' %}">Logout</a></li>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Event listener for the district dropdown
+        $('#id_district').change(function() {
+            var district = $(this).val();
+
+            // Clear the cities dropdown and add a default option
+            $('#id_city').empty().append('<option value="">-- Select a Branch --</option>');
+
+            // If a district is selected
+            if (district) {
+                $.ajax({
+                    url: '/accounts/get_cities/',
+                    data: {
+                        'district': district
+                    },
+                    success: function(data) {
+                        // If cities are returned
+                        if (data.cities) {
+                            // Update the cities dropdown based on the data from the server
+                            $.each(data.cities, function(key, value) {
+                                $('#id_city').append('<option value="' + value + '">' + value + '</option>');
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+
+
+{% endblock %}
